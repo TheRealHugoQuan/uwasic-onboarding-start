@@ -1,20 +1,37 @@
-<!---
-
-This file is used to generate your project datasheet. Please fill in the information below and delete any unused
-sections.
-
-You can also include images in this folder and reference them in the markdown. Each image must be less than
-512 kb in size, and the combined size of all images must be less than 1 MB.
--->
-
 ## How it works
 
-Explain how your project works
+This design implements an **SPI-controlled PWM peripheral** for Tiny Tapeout.  
+It is made of two modules:
+
+1. **SPI Peripheral**  
+   - Listens to a 3-wire SPI bus (SCLK, COPI, nCS).  
+   - Receives fixed 16-bit frames: `[1b R/W] [7b Address] [8b Data]`.  
+   - Supports only write commands.  
+   - Decodes the frame and updates one of five internal registers:  
+     - `0x00`: Enable outputs uo_out[7:0]  
+     - `0x01`: Enable outputs uio_out[7:0]  
+     - `0x02`: Enable PWM on uo_out[7:0]  
+     - `0x03`: Enable PWM on uio_out[7:0]  
+     - `0x04`: Set PWM duty cycle (0x00 = 0%, 0xFF = 100%)  
+
+2. **PWM Peripheral**  
+   - Generates a ~3 kHz PWM signal from the 10 MHz system clock.  
+   - Duty cycle is set by the register at address `0x04`.  
+   - Each of the 16 outputs can be:  
+     - Forced low,  
+     - Forced high,  
+     - Or driven by PWM, depending on the enable registers.  
+   - Final outputs: `{uio_out[7:0], uo_out[7:0]}`  
+
+---
 
 ## How to test
 
-Explain how to use your project
+1. **Run the provided Cocotb SPI testbench**:
+   - Tests that SPI writes correctly update internal registers.
+   - Confirms invalid addresses are ignored.
+   - Verifies PWM outputs toggle correctly.
 
-## External hardware
-
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+   Run inside `test/`:
+   ```bash
+   make
