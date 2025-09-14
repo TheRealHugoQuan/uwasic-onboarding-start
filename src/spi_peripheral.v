@@ -55,7 +55,7 @@ module spi_peripheral(
 
     // 3) Shift and bit counter
     reg  [4:0]  bit_cnt;     // counts 0..16
-    reg  [14:0] shreg;
+    reg  [15:0] shreg;
 
     // precompute the value AFTER this edge (so we can decode it)
     wire [15:0] shreg_next = {shreg[14:0], copi_sync};  // 15+1=16, MSB-first
