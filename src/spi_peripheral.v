@@ -1,10 +1,7 @@
 // SPI peripheral: Mode 0 (sample on SCLK rising)
 // Frame: [ R/W(1) | ADDR(7) | DATA(8) ]  — MSB first
 
-module spi_peripheral #(
-    parameter ADDR_WIDTH = 7,
-    parameter DATA_WIDTH = 8
-)(
+module spi_peripheral(
     input  wire        clk,          // 10 MHz system clk
     input  wire        rst_n,        // async active-low reset
     // raw SPI pins
@@ -54,12 +51,11 @@ module spi_peripheral #(
 
     wire sclk_rise =  sclk_sync & ~sclk_q;
     wire ncs_fall  = ~ncs_sync  &  ncs_q;
-    wire ncs_rise  =  ncs_sync  & ~ncs_q;
     wire ncs_high  =  ncs_sync;
 
     // 3) Shift and bit counter
     reg  [4:0]  bit_cnt;     // counts 0..16
-    reg  [15:0] shreg;
+    reg  [14:0] shreg;
 
     // precompute the value AFTER this edge (so we can decode it)
     wire [15:0] shreg_next = {shreg[14:0], copi_sync};  // 15+1=16, MSB-first
